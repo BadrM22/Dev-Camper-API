@@ -42,7 +42,7 @@ const UsersSchema = new mongoose.Schema({
 UsersSchema.methods.signToken = function () {
     return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXP,
-        encoding: "HS256",
+        algorithm: "HS256",
     });
 };
 // Compare user entered password with hashed password in DB
