@@ -34,7 +34,29 @@ const UsersSchema = new mongoose.Schema({
         //     "Please add a valid password",
         // ],
     },
+    passwordResetToken: String,
+    passwordResetTokenExpire: String,
+});
+
+// Generate JSON WEB TOKEN
+UsersSchema.methods.signToken = function () {
+    return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXP,
+        encoding: "HS256",
+    });
+};
+// Compare user entered password with hashed password in DB
+UsersSchema.methods.comparePassword = async function (pswd) {
+    return await bcrypt.compare(pswd, this.password);
+};
+// Hash password before saving to DB
+UsersSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) {
+        next();
+    }
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
 });
 
 module.exports = mongoose.model("Users", UsersSchema);
-
