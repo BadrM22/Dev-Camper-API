@@ -1,6 +1,6 @@
 const express = require("express");
 const morgan = require("morgan");
-// require("dotenv").config({ path: "./config/.env" });
+const apiV1 = require("./router/api-v1");
 
 const app = express();
 if (process.env.NODE_ENV === "development") {
@@ -10,5 +10,6 @@ if (process.env.NODE_ENV === "development") {
 }
 
 app.use(express.json());
+app.use("/api/v1", apiV1);
 
 module.exports = app;
