@@ -1,17 +1,22 @@
 const mongoose = require("mongoose");
-require("colors");
-const { join } = require("path");
 const fs = require("fs");
 const User = require("./src/models/user");
+const Bootcamp = require("./src/models/bootcamp");
+require("colors");
 require("dotenv").config({ path: "./src/config/.env" });
 
 const users = JSON.parse(
     fs.readFileSync("./_data/users.json", { encoding: "utf-8" })
 );
 
+const bootcamps = JSON.parse(
+    fs.readFileSync("./_data/bootcamps.json", { encoding: "utf-8" })
+);
+
 async function importData() {
     try {
         await User.create(users);
+        await Bootcamp.create(bootcamps);
         console.log("Data Imported...".bgGreen);
         process.exit(0);
     } catch (error) {
@@ -23,6 +28,7 @@ async function importData() {
 async function deleteData() {
     try {
         await User.deleteMany({});
+        await Bootcamp.deleteMany({});
         console.log("Data Deleted...".bgRed);
         process.exit(0);
     } catch (error) {
