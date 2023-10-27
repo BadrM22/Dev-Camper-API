@@ -8,10 +8,10 @@ const BootcampsSchema = new mongoose.Schema({
         minlength: 5,
         maxlength: 120,
     },
-    user: {
-        type: mongoose.Schema.ObjectId,
-        ref: "User",
-    },
+    // user: {
+    //     type: mongoose.Schema.ObjectId,
+    //     ref: "User",
+    // },
     slug: String,
     description: {
         type: String,
