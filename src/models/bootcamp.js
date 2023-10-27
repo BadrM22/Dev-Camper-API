@@ -79,7 +79,6 @@ BootcampsSchema.virtual("courses", {
     localField: "_id",
     justOne: false,
     ref: "Course",
-
 });
 
 // Cascade bootcamp courses before deleting bootcamp

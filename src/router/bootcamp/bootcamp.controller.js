@@ -9,10 +9,14 @@ const HttpError = require("../../utils/error.js");
  * @access public
  */
 exports.httpGetBootcamps = asyncHandler(async (req, res, next) => {
-    const bootcamps = await Bootcamp.find();
-    return res
-        .status(200)
-        .json({ success: true, count: bootcamps.length, data: bootcamps });
+    const bootcamps = await Bootcamp.find().populate({
+        path: "courses",
+    });
+    res.status(200).json({
+        success: true,
+        count: bootcamps.length,
+        data: bootcamps,
+    });
 });
 
 /**
@@ -22,7 +26,9 @@ exports.httpGetBootcamps = asyncHandler(async (req, res, next) => {
  * @access public
  */
 exports.httpGetBootcamp = asyncHandler(async (req, res, next) => {
-    const bootcamp = await Bootcamp.findById(req.params.id);
+    const bootcamp = await Bootcamp.findById(req.params.id).populate({
+        path: "courses",
+    });
     if (!bootcamp) {
         return next(
             new HttpError(`Bootcamp with id ${req.params.id} not found`, 404)

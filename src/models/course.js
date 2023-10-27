@@ -19,7 +19,7 @@ const CoursesSchema = new mongoose.Schema({
     minimumSkill: {
         type: String,
         enum: ["beginner", "intermediate", "advanced", "all"],
-        default: 'all',
+        default: "all",
     },
     scholarshipsAvailable: {
         type: Boolean,
@@ -36,6 +36,37 @@ const CoursesSchema = new mongoose.Schema({
     },
 });
 
+CoursesSchema.statics.getAverageCost = async function (bootcampId) {
+    const bootcamp = await this.aggregate([
+        { $match: { bootcamp: bootcampId } },
+        {
+            $group: {
+                _id: "$bootcamp",
+                averageCost: { $avg: "$tuition" },
+            },
+        },
+    ]);
+    console.log(bootcamp);
+    const averageCost = bootcamp.averageCost
+        ? Math.ceil(bootcamp.averageCost)
+        : undefined;
+    try {
+        await this.model("Bootcamp").findByIdAndUpdate(
+            bootcamp._id,
+            averageCost,
+            { new: false, runValidators: false }
+        );
+    } catch (error) {
+        console.error(error);
+    }
+};
 
+CoursesSchema.pre("save", { query: true }, function () {
+    this.constructor.getAverageCost(this.bootcamp);
+});
+
+CoursesSchema.pre("deleteOne", { document: true }, function () {
+    this.constructor.getAverageCost(this.bootcamp);
+});
 
 module.exports = mongoose.model("Course", CoursesSchema);
