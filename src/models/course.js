@@ -19,7 +19,7 @@ const CoursesSchema = new mongoose.Schema({
     minimumSkill: {
         type: String,
         enum: ["beginner", "intermediate", "advanced", "all"],
-        default: all,
+        default: 'all',
     },
     scholarshipsAvailable: {
         type: Boolean,
@@ -35,5 +35,7 @@ const CoursesSchema = new mongoose.Schema({
         ref: "User",
     },
 });
+
+
 
 module.exports = mongoose.model("Course", CoursesSchema);
