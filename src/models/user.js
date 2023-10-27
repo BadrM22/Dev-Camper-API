@@ -12,6 +12,7 @@ const UsersSchema = new mongoose.Schema({
     },
     email: {
         type: String,
+        unique: [true, "email already registerd"],
         required: [true, "Please add bootcamp email"],
         trim: true,
         match: [
@@ -21,6 +22,7 @@ const UsersSchema = new mongoose.Schema({
     },
     role: {
         type: String,
+        trim: true,
         enum: ["user", "publisher"],
         required: [true, "Please add a user role"],
     },
@@ -39,16 +41,18 @@ const UsersSchema = new mongoose.Schema({
 });
 
 // Generate JSON WEB TOKEN
-UsersSchema.methods.signToken = function () {
+UsersSchema.methods.getSignedToken = function () {
     return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXP,
-        algorithm: "HS256",
+        expiresIn: "30 days",
+        issuer: "Mo.Badr",
     });
 };
+
 // Compare user entered password with hashed password in DB
 UsersSchema.methods.comparePassword = async function (pswd) {
     return await bcrypt.compare(pswd, this.password);
 };
+
 // Hash password before saving to DB
 UsersSchema.pre("save", async function (next) {
     if (!this.isModified("password")) {
