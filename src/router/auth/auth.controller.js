@@ -33,6 +33,20 @@ exports.login = asyncHandler(async (req, res, next) => {
 });
 
 /**
+ * @description get current user data
+ * @route /api/v1/auth/me
+ * @access public
+ */
+
+exports.currentUser = asyncHandler(async (req, res, next) => {
+    const user = req.user;
+    if (!user) {
+        return next(new HttpError("must be logged in", 400));
+    }
+    return res.status(200).json({ success: true, data: user });
+});
+
+/**
  * @description helper function to sign token and send response
  * @param user user query
  * @param res response
