@@ -5,6 +5,7 @@ require("dotenv").config({ path: join(__dirname, "config", ".env") });
 const http = require("http");
 const app = require("./app");
 const { connectDB, disconnectDB } = require("./config/db");
+const { log } = require("console");
 
 const server = http.createServer(app);
 
@@ -23,6 +24,7 @@ async function startServer() {
 startServer();
 
 process.on("unhandledRejection", (err, p) => {
+    console.log(err);
     disconnectDB();
     server.close((err) => {
         console.log(err);

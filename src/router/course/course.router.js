@@ -7,7 +7,7 @@ const {
     httpDeleteCourse,
 } = require("./course.controller");
 
-const router = Router();
+const router = Router({ mergeParams: true });
 
 router.get("/", httpGetCourses);
 router.get("/:id", httpGetCourse);

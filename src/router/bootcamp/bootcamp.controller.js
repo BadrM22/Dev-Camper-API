@@ -12,11 +12,7 @@ exports.httpGetBootcamps = asyncHandler(async (req, res, next) => {
     const bootcamps = await Bootcamp.find().populate({
         path: "courses",
     });
-    res.status(200).json({
-        success: true,
-        count: bootcamps.length,
-        data: bootcamps,
-    });
+    res.status(200).json(res.advancedResults);
 });
 
 /**

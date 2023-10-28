@@ -11,6 +11,6 @@ async function connectDB() {
 
 async function disconnectDB() {
     await mongoose.disconnect();
-    console.log(`Disconnection DB....`);
+    console.log(`Disconnect DB....`);
 }
 module.exports = { connectDB, disconnectDB };
