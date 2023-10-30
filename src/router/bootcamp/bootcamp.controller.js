@@ -40,6 +40,18 @@ exports.httpGetBootcamp = asyncHandler(async (req, res, next) => {
  * @access private
  */
 exports.httpCreateBootcamp = asyncHandler(async (req, res, next) => {
+    req.body.user = req.user._id;
+    const publishedBootcamps = await Bootcamp.find({ user: req.user._id });
+
+    // If the user is not an admin they can only publish one bootcamp
+    if (publishedBootcamps && req.user.role !== "admin") {
+        return next(
+            new HttpError(
+                `User with ID ${req.user._id} has already published a bootcamp`,
+                400
+            )
+        );
+    }
     const bootcamp = await Bootcamp.create(req.body);
     return res.status(201).json({ success: true, data: bootcamp });
 });
@@ -55,6 +67,17 @@ exports.httpUpdateBootcamp = asyncHandler(async (req, res, next) => {
     if (!bootcamp) {
         return next(
             new HttpError(`Bootcamp with id ${req.params.id} not found`, 404)
+        );
+    }
+    if (
+        bootcamp.user.toString() !== req.user._id &&
+        req.user.role !== "admin"
+    ) {
+        return next(
+            new ErrorResponse(
+                `User ${req.user._id} is not authorized to update this bootcamp`,
+                401
+            )
         );
     }
     await bootcamp.updateOne(req.body, { new: true, runValidators: true });
@@ -73,6 +96,17 @@ exports.httpDeleteBootcamp = asyncHandler(async (req, res, next) => {
     if (!bootcamp) {
         return next(
             new HttpError(`Bootcamp with id ${req.params.id} not found`, 404)
+        );
+    }
+    if (
+        bootcamp.user.toString() !== req.user._id &&
+        req.user.role !== "admin"
+    ) {
+        return next(
+            new ErrorResponse(
+                `User ${req.user._id} is not authorized to delete this bootcamp`,
+                401
+            )
         );
     }
     await bootcamp.deleteOne();

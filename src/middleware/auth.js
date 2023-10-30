@@ -10,6 +10,7 @@ exports.protect = async (req, res, next) => {
     ) {
         token = req.headers.authorization.split(" ")[1];
     }
+    console.log("token: ", token);
     if (!token) {
         return next(new HttpError(`Unauthorized`, 401));
     }
@@ -27,7 +28,12 @@ exports.protect = async (req, res, next) => {
 exports.authorize = (...roles) => {
     return (req, res, next) => {
         if (!req.user.role.includes(roles)) {
-            return next(new HttpError("Unauthorized", 401));
+            return next(
+                new HttpError(
+                    `User role ${req.user.role} is not authorized to access this route`,
+                    403
+                )
+            );
         }
         next();
     };

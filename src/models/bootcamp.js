@@ -92,4 +92,9 @@ BootcampsSchema.pre("save", function (next) {
     next();
 });
 
+BootcampsSchema.pre("updateOne", { document: true }, function (next) {
+    this.slug = slugify(this.name, { trim: true, lower: true });
+    next();
+});
+
 module.exports = mongoose.model("Bootcamp", BootcampsSchema);

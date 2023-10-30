@@ -1,19 +1,24 @@
 const Course = require("../../models/course");
 const asyncHandler = require("../../middleware/asynchandler");
 const HttpError = require("../../middleware/errorhandler");
+const Bootcamp = require("../../models/bootcamp");
 
 /**
  * @description get all courses
  * @route /api/v1/courses
+ * @route /api/v1/bootcampId/courses
  * @method get
  * @access public
  */
 
 exports.httpGetCourses = asyncHandler(async (req, res, next) => {
-    const courses = await Course.find();
-    return res
-        .status(200)
-        .json({ success: true, count: courses.length, data: courses });
+    if (req.params.bootcampId) {
+        const courses = await Course.find({ bootcamp: req.params.bootcampId });
+        return res
+            .status(200)
+            .json({ success: true, count: courses.length, data: courses });
+    }
+    return res.status(200).json(res.advancedResults);
 });
 
 /**
@@ -34,11 +39,33 @@ exports.httpGetCourse = asyncHandler(async (req, res, next) => {
 
 /**
  * @description create course
- * @route /api/v1/courses/
+ * @route /api/v1/bootcamps/bootcampId/courses/
  * @method post
  * @access private
  */
 exports.httpCreateCourse = asyncHandler(async (req, res, next) => {
+    req.body.bootcamp = req.params.bootcampId;
+    req.body.user = req.user._id;
+    const bootcamp = await Bootcamp.findById(req.params.bootcampId);
+    if (!bootcamp) {
+        return next(
+            new HttpError(
+                `No bootcamp with the id of ${req.params.bootcampId}`,
+                404
+            )
+        );
+    }
+    if (
+        bootcamp.user.toString() !== req.user._id &&
+        req.user.role !== "admin"
+    ) {
+        return next(
+            new ErrorResponse(
+                `User ${req.user.id} is not authorized to add a course to bootcamp ${bootcamp._id}`,
+                401
+            )
+        );
+    }
     const course = await Course.create(req.body);
     return res.status(201).json({ success: true, data: course });
 });
@@ -58,6 +85,14 @@ exports.httpUpdateCourse = asyncHandler(async (req, res, next) => {
             );
         }
     }
+    if (course.user.toString() !== req.user._id && req.user.role !== "admin") {
+        return next(
+            new ErrorResponse(
+                `User ${req.user.id} is not authorized to update course ${course._id}`,
+                401
+            )
+        );
+    }
     await course.updateOne(req.body, { new: true, runValidators: true });
     return res.status(200).json({ success: true, data: course });
 });
@@ -76,6 +111,14 @@ exports.httpDeleteCourse = asyncHandler(async (req, res, next) => {
                 new HttpError(`Course with id ${req.params.id} not found`, 404)
             );
         }
+    }
+    if (course.user.toString() !== req.user._id && req.user.role !== "admin") {
+        return next(
+            new ErrorResponse(
+                `User ${req.user.id} is not authorized to delete course ${course._id}`,
+                401
+            )
+        );
     }
     await course.deleteOne();
     return res.sendStatus(202);
