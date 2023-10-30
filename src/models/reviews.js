@@ -13,9 +13,15 @@ const ReviewsSchema = new mongoose.Schema({
         trim: true,
         maxlength: 500,
     },
-    ratings: {
+    rating: {
         type: String,
         required: [true, "ratings is requried"],
+        min: 1,
+        max: 10,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now(),
     },
     bootcamp: {
         type: mongoose.Schema.ObjectId,
